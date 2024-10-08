@@ -11,12 +11,27 @@ import 'guest_book_message.dart';
 
 enum Attending { yes, no, unknown }
 
+enum Colours {red(Colors.red), 
+orange(Colors.orange), 
+yellow(Colors.yellow), 
+green(Colors.green), 
+blue(Colors.blue), 
+purple(Colors.purple), 
+pink(Colors.pink), 
+black(Colors.black), 
+teal(Colors.teal);
+
+const Colours(this.rgbcolor);
+final Color rgbcolor; 
+}
+  
+
 class ApplicationState extends ChangeNotifier {
   ApplicationState() {
     init();
   }
 
-  
+
 
   bool _loggedIn = false;
   bool get loggedIn => _loggedIn;
@@ -34,10 +49,11 @@ class ApplicationState extends ChangeNotifier {
     ]);
     FirebaseFirestore.instance
         .collection('attendees')
-        .where('attending', isEqualTo: true)
         .snapshots()
         .listen((snapshot) {
-      _attendees = snapshot.docs.length;
+      _attendees = snapshot.docs.fold(0, (total, doc){
+        return total + (doc.data()['num'] as int? ?? 0);
+      });
       notifyListeners();
     });
     
@@ -66,12 +82,14 @@ class ApplicationState extends ChangeNotifier {
             .snapshots()
             .listen((snapshot) {
           if (snapshot.data() != null) {
-            if (snapshot.data()!['attending'] as bool) {
-              _attending = Attending.yes;
-            } else {
-              _attending = Attending.no;
-            }
+            if (snapshot.exists) {
+              numattending = snapshot.data()!['num'] as int? ?? 0;
+              _attending = snapshot.data()!['attending'] as bool
+              ? Attending.yes
+              : Attending.no;
+            } 
           } else {
+            numattending = 0;
             _attending = Attending.unknown;
           }
           notifyListeners();
@@ -102,7 +120,7 @@ class ApplicationState extends ChangeNotifier {
     });
   }
   int _attendees = 0;
-int get attendees => _attendees;
+int get attendees => numAttendees;
 
 Attending _attending = Attending.unknown;
 StreamSubscription<DocumentSnapshot>? _attendingSubscription;
@@ -116,5 +134,14 @@ set attending(Attending attending) {
   } else {
     userDoc.set(<String, dynamic>{'attending': false});
   }
+}
+int numAttendees = 0;
+set numattending(int num) {
+  final userDoc = FirebaseFirestore.instance
+      .collection('attendees')
+      .doc(FirebaseAuth.instance.currentUser!.uid);
+  
+    userDoc.set(<String, dynamic>{'num': num, 'attending': num >0 ,});
+  
 }
 }
