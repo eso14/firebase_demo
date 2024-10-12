@@ -119,8 +119,20 @@ class ApplicationState extends ChangeNotifier {
       'userId': FirebaseAuth.instance.currentUser!.uid,
     });
   }
-  int _attendees = 0;
-int get attendees => numAttendees;
+int _attendees = 0;
+int get attendees => _attendees;
+
+int numAttendees = 0;
+int get _numAttendees => numAttendees;
+
+set numattending(int num) {
+  final userDoc = FirebaseFirestore.instance
+      .collection('attendees')
+      .doc(FirebaseAuth.instance.currentUser!.uid);
+  
+    userDoc.set(<String, dynamic>{'num': num, 'attending': num >0 ,});
+  
+}
 
 Attending _attending = Attending.unknown;
 StreamSubscription<DocumentSnapshot>? _attendingSubscription;
@@ -135,13 +147,6 @@ set attending(Attending attending) {
     userDoc.set(<String, dynamic>{'attending': false});
   }
 }
-int numAttendees = 0;
-set numattending(int num) {
-  final userDoc = FirebaseFirestore.instance
-      .collection('attendees')
-      .doc(FirebaseAuth.instance.currentUser!.uid);
-  
-    userDoc.set(<String, dynamic>{'num': num, 'attending': num >0 ,});
-  
-}
+
+
 }

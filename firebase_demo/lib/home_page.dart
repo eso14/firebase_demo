@@ -60,8 +60,8 @@ class HomePage extends StatelessWidget {
                 
                 if (appState.loggedIn) ...[
                   numWidget(
-                  attendees: 0,
-                  onAttendeeChange: (attending) => appState.attending,
+                  attendees: appState.numAttendees,
+                  onAttendeeChange: (num) => appState.numAttendees = num,
                   
                   ),
                   const Header('Discussion'),
