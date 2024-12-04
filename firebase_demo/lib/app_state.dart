@@ -11,19 +11,6 @@ import 'guest_book_message.dart';
 
 enum Attending { yes, no, unknown }
 
-enum Colours {red(Colors.red), 
-orange(Colors.orange), 
-yellow(Colors.yellow), 
-green(Colors.green), 
-blue(Colors.blue), 
-purple(Colors.purple), 
-pink(Colors.pink), 
-black(Colors.black), 
-teal(Colors.teal);
-
-const Colours(this.rgbcolor);
-final Color rgbcolor; 
-}
   
 
 class ApplicationState extends ChangeNotifier {
@@ -51,9 +38,11 @@ class ApplicationState extends ChangeNotifier {
         .collection('attendees')
         .snapshots()
         .listen((snapshot) {
-      _attendees = snapshot.docs.fold(0, (total, doc){
+          print("I am here");
+      _numAttendees = snapshot.docs.fold(0, (total, doc){
         return total + (doc.data()['num'] as int? ?? 0);
       });
+      print("I am here pt 2" + _numAttendees.toString());
       notifyListeners();
     });
     
@@ -83,13 +72,13 @@ class ApplicationState extends ChangeNotifier {
             .listen((snapshot) {
           if (snapshot.data() != null) {
             if (snapshot.exists) {
-              numattending = snapshot.data()!['num'] as int? ?? 0;
+              _numAttendees = snapshot.data()!['num'] as int? ?? 0;
               _attending = snapshot.data()!['attending'] as bool
               ? Attending.yes
               : Attending.no;
             } 
           } else {
-            numattending = 0;
+            _numAttendees = 0;
             _attending = Attending.unknown;
           }
           notifyListeners();
@@ -119,18 +108,17 @@ class ApplicationState extends ChangeNotifier {
       'userId': FirebaseAuth.instance.currentUser!.uid,
     });
   }
-int _attendees = 0;
-int get attendees => _attendees;
 
-int numAttendees = 0;
-int get _numAttendees => numAttendees;
+int _numAttendees = 0;
+int get numAttendees => _numAttendees;
 
-set numattending(int num) {
+set numAttendees(int num) {
   final userDoc = FirebaseFirestore.instance
       .collection('attendees')
       .doc(FirebaseAuth.instance.currentUser!.uid);
   
     userDoc.set(<String, dynamic>{'num': num, 'attending': num >0 ,});
+    print("this is what we want" + num.toString());
   
 }
 

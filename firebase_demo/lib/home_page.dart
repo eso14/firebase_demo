@@ -55,7 +55,7 @@ class HomePage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
 
-               Paragraph('${appState.attendees} people going'),
+               Paragraph('${appState.numAttendees} people going'),
                 
                 
                 if (appState.loggedIn) ...[
